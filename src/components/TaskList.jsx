@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 const priorityClass = {
@@ -12,8 +13,30 @@ const statusClass = {
   Completed: 'task-badge--completed',
 }
 
-const Tasklist = ({filteredData, setFilter}) => {
+const Tasklist = ({filteredData, setFilter,data, setData}) => {
   const navigate = useNavigate()
+
+  const [showModal,setShowModal] = useState(false);
+
+  const [selectedID, setSelectedID] = useState(null);
+
+  const deleteTask = (id) =>{
+    setSelectedID(id);
+    setShowModal(true);
+  }
+
+  const cancelDelete = () =>{
+    setShowModal(false);
+      setSelectedID(null)
+  }
+
+  const confirmDelete = (id) =>{
+    const updatedTask = data.filter((item) => item.id !== selectedID)
+    setData(updatedTask)
+
+    setShowModal(false);
+    setSelectedID(null)    
+  }
 
    return (
     <>
@@ -66,13 +89,13 @@ const Tasklist = ({filteredData, setFilter}) => {
                   </div>
                 </div>
                 <div className="task-item__actions">
-                  <button className="task-action task-action--edit" title="Edit">
+                  <button className="task-action task-action--edit" title="Edit" onClick={()=>navigate(`/edit-task/${item.id}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                       <path d="m15 5 4 4" />
                     </svg>
                   </button>
-                  <button className="task-action task-action--delete" title="Delete">
+                  <button className="task-action task-action--delete" title="Delete" onClick={()=> deleteTask(item.id)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 6h18" />
                       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
@@ -86,6 +109,35 @@ const Tasklist = ({filteredData, setFilter}) => {
             )))}
           </div>
         </section>
+        {
+          showModal && (
+                 <div className="modal-overlay">
+                    <div className="modal-box">
+                      <h3>Delete Task</h3>
+
+                      <p>Are you sure you want to delete this task?</p>
+
+                      <div className="modal-actions">
+                        <button
+                          className="task-button"
+                          onClick={cancelDelete}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          className="task-button task-button--danger"
+                          onClick={confirmDelete}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+          )
+        }
+
+   
         </>
   )
 }
